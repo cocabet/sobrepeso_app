@@ -1,0 +1,10 @@
+<h1>Sobrecarga de Peso</h1>
+
+<%= form_tag({:action => :importar}, :multipart => true, :id => "import_form") do %>
+	<label> Seleccione un archivo json de su ordenador</label><br>
+	<%= file_field_tag "file" %>
+	<br>
+	<%= button_tag(:type => "submit", :class => "btn btn-primary") do%>
+		<span></span> IMPORTAR
+	<% end%>
+<% end %>
