@@ -32,29 +32,32 @@ class HomeController < ApplicationController
 
 	def procesar_etiquetas(datos)	
 		packages = []
-		if datos["parcel"]["mass_unit"] == "KG" && datos["parcel"]["distance_unit"] == "CM"
-			#Peso Total el mayor del peso en kilogramos y peso volumetrico
-			peso_volumetrico = (datos["parcel"]["length"]*datos["parcel"]["width"]*datos["parcel"]["height"])/5000
-			peso_kilogramo   = datos["parcel"]["weight"]
-			peso_total = (peso_kilogramo > peso_volumetrico) ? peso_kilogramo : peso_volumetrico
-			peso_indicado = peso_total.ceil
-			#convertir cm a in 1cm -> 0.393701
-			in_conv = 0.393701
-			largo = (datos["parcel"]["length"] * in_conv).ceil 
-			ancho = (datos["parcel"]["width"]  * in_conv).ceil
-			alto  = (datos["parcel"]["height"] * in_conv).ceil
-			#convertir kg a lb 1kg -> 2.20462
-			lb_conv = 2.20462
-			peso = (datos["parcel"]["weight"] * lb_conv).ceil
+		#convertir kg a lb 1kg -> 2.20462
+		#lb_conv = 2.20462
+		#convertir cm a in 1cm -> 0.393701
+		#in_conv = 0.393701
+		#Peso Total el mayor del peso en kilogramos y peso volumetrico
+		#peso_volumetrico = (datos["parcel"]["length"]*datos["parcel"]["width"]*datos["parcel"]["height"])/5000
+		#peso_kilogramo   = datos["parcel"]["weight"]
+		#peso_total = (peso_kilogramo > peso_volumetrico) ? peso_kilogramo : peso_volumetrico
+		#peso_indicado = peso_total.ceil
+		largo = datos["parcel"]["length"].ceil
+		ancho = datos["parcel"]["width"].ceil
+		alto  = datos["parcel"]["height"].ceil
+		peso  = datos["parcel"]["weight"].ceil
 
+		if datos["parcel"]["mass_unit"] == "KG" && datos["parcel"]["distance_unit"] == "CM"
+			packages << {
+			  :weight => {:units => "KG", :value => peso },
+			  :dimensions => {:length => largo, :width => ancho, :height => alto, :units => "CM" }
+			}
+			envios_fedex(packages) 
+		elsif datos["parcel"]["mass_unit"] == "LB" && datos["parcel"]["distance_unit"] == "IN"
 			packages << {
 			  :weight => {:units => "LB", :value => peso },
 			  :dimensions => {:length => largo, :width => ancho, :height => alto, :units => "IN" }
 			}
-
-			envios_fedex(packages) 
-		elsif datos["parcel"]["mass_unit"] == "LB" && datos["parcel"]["distance_unit"] == "IN"
-			#Aquí solo convertimos los datos del json a KG y CM
+			envios_fedex(packages)
 		end
 
 		
@@ -86,11 +89,11 @@ class HomeController < ApplicationController
   			:drop_off_type => "REGULAR_PICKUP"
 		}
 		
-		fedex = Fedex::Shipment.new(:key => 'O21wEWKhdDn2SYyb',
-	                            :password => 'db0SYxXWWh0bgRSN7Ikg9Vunz',
-	                            :account_number => '510087780',
-	                            :meter => '119009727',
-	                            :mode => 'test')
+		fedex = Fedex::Shipment.new(:key => 'xxx',
+                            :password => 'xxxx',
+                            :account_number => 'xxxx',
+                            :meter => 'xxx',
+                            :mode => 'test')
 
 		rate = fedex.rate(:shipper=>shipper,
 		                  :recipient => recipient,
@@ -100,8 +103,8 @@ class HomeController < ApplicationController
 
 		
 		#retornar el peso de  lo que se ebvía a fedex
-		puts rate[0].total_net_charge
-		puts rate[0].total_billing_weigth
+		puts rate.to_s
+		#puts rate[0].total_billing_weigth
 
 	end
 
